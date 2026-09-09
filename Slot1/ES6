@@ -1,0 +1,59 @@
+// 1. Person Class
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  introduce = () => console.log(`Name: ${this.name}, Age: ${this.age}`);
+}
+
+// 2. Student Class
+class Student extends Person {
+  constructor(name, age, scores = []) {
+    super(name, age);
+    this.scores = scores;
+  }
+
+  calculateAverage = () => {
+    if (this.scores.length === 0) return 0;
+    const total = this.scores.reduce((sum, score) => sum + score, 0);
+    return (total / this.scores.length).toFixed(2);
+  };
+
+  addScores = (...newScores) => {
+    this.scores = [...this.scores, ...newScores];
+  };
+
+  displayInfo = () => {
+    this.introduce();
+    const passingScores = this.scores.filter((score) => score >= 5);
+    console.log(`Scores: ${this.scores.join(", ")}`);
+    console.log(`Passing Scores: ${passingScores.join(", ")}`);
+    console.log(`Average Score: ${this.calculateAverage()}`);
+  };
+}
+
+const createScores = (...scores) => scores;
+
+const evaluatePerformance = (student) =>
+  Promise.resolve(
+    student.calculateAverage() >= 8 ? "Excellent Student" : "Need Improvement",
+  );
+
+const main = async () => {
+  const initialScores = createScores(2, 3, 8, 9, 10);
+  const student1 = new Student("ABC", 20, initialScores);
+  student1.addScores(7, 8);
+
+  const { name, age } = student1;
+
+  console.log("--- Student Information ---");
+  student1.displayInfo();
+
+  console.log("\n--- Evaluating Performance ---");
+  const result = await evaluatePerformance(student1);
+  console.log(`Evaluation Result: ${result}`);
+};
+
+main();
