@@ -14,7 +14,7 @@ function ProductCard() {
                 variant="top"
                 src={product.image}
                 alt={product.name}
-                style={{ height: "250px", objectFit: "cover" }}
+                style={{ height: "250px" }}
               />
               <Card.Body className="d-flex flex-column">
                 <Card.Title>{product.name}</Card.Title>
