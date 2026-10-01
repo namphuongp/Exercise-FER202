@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.task-app {
+  min-height: 100vh;
+  padding: 0 16px;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.task-app .form-control,
+.task-app .form-select {
+  min-width: 0;
+}
+
+.task-app .form-select + .form-control {
+  margin-top: 8px;
+}
+
+.task-app .btn-outline-secondary {
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-border-color: var(--bs-secondary-color);
+}
+
+.task-app span {
+  overflow-wrap: anywhere;
+}
