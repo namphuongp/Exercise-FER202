@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { ThemeContext } from "./context/ThemeContext";
+import Header from "./components/Header";
+import Movie from "./Movie";
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-bs-theme",
+      darkMode ? "dark" : "light",
+    );
+  }, [darkMode]);
+
+  const toggleTheme = () => {
+    setDarkMode((prev) => !prev);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeContext.Provider
+      value={{
+        darkMode,
+        toggleTheme,
+      }}
+    >
+      <Movie />
+    </ThemeContext.Provider>
   );
 }
 
 export default App;
+
+
