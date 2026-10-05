@@ -76,16 +76,22 @@ export default function Movie() {
   const [movie, setMovie] = useState([movies]);
   const [selectedMovie, setSelectedMovie] = useState("");
   const filteredMovies = useMemo(() => {
-    return movies.filter((m) => {
-      
+    let result = movies.filter((m) => {
+      const matchSearch = m.title.toLowerCase().includes(search.toLowerCase());
+      const matchGenre =
+        genre === "all" || m.genre.toLowerCase() === genre.toLowerCase();
 
-      const matchSearch = m.title
-        .toLowerCase()
-        .includes(search.toLowerCase());
-
-      return matchSearch;
+      return matchSearch && matchGenre;
     });
-  }, [search]);
+
+    if (filter === "decrease") {
+      result.sort((a, b) => b.rating - a.rating);
+    } else if (filter === "increase") {
+      result.sort((a, b) => a.rating - b.rating);
+    }
+
+    return result;
+  }, [search, genre, filter]);
   return (
     <Row>
       <Header />
@@ -134,7 +140,10 @@ export default function Movie() {
           }}
         />
         <div className="ms-3">
-            <div className="mb-3">Tổng:     {movies.length}         | Yêu thích:       | Đang hiển thị: {filteredMovies.length}</div>
+          <div className="mb-3">
+            Tổng: {movies.length} | Yêu thích: | Đang hiển thị:{" "}
+            {filteredMovies.length}
+          </div>
           {filteredMovies.map((m) => (
             <>
               <div className="mb-3">
@@ -142,26 +151,30 @@ export default function Movie() {
               </div>
               <div className="d-flex justify-content-end gap-3">
                 <Button>Yêu thích</Button>
-                <Button onClick={(e) => setSelectedMovie(e.target.value)}>
-                  Chi tiết
-                </Button>
+                <Button onClick={() => setSelectedMovie(m)}>Chi tiết</Button>
               </div>
             </>
           ))}
         </div>
       </Col>
-      <Col md={4}>
-        <h3 className="text-center">Movie Details</h3>
-        <div>Title: selectedMovie.title</div>
-        <div>Genres: selectedMovie.genres</div>
-        <div>Year: selectedMovie.year</div>
-        <div>Year: selectedMovie.year</div>
-        <div>Rating: selectedMovie.year</div>
-        <div>Director: selectedMovie.year</div>
-        <div className="mb-4">Duration: selectedMovie.year</div>
-
-        <div>Description: </div>
-        <Button>Close</Button>
+      <Col md={4} className="border-start pt-3">
+        <h3 className="text-center mb-3">Movie Details</h3>
+        {selectedMovie ? (
+          <div className="p-2">
+            <p>Title: {selectedMovie.title}</p>
+            <p>Genre: {selectedMovie.genre}</p>
+            <p>Year: {selectedMovie.year}</p>
+            <p>Rating: {selectedMovie.rating}</p>
+            <p>Director:{selectedMovie.director}</p>
+            <p>Duration: {selectedMovie.duration}</p>
+            <p className="mb-4">Description: {selectedMovie.description}</p>
+            <Button onClick={() => setSelectedMovie(null)}>Close</Button>
+          </div>
+        ) : (
+          <p className="text-center text-muted">
+            Chọn một bộ phim để xem chi tiết
+          </p>
+        )}
       </Col>
     </Row>
   );
