@@ -127,7 +127,7 @@ export default function Movie() {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            Sắp xếp:<option value="all">Default</option>
+            <option value="all">Sắp xếp: Default</option>
             <option value="decrease">Rating: High to Low</option>
             <option value="increase">Rating: Low to High</option>
           </select>
@@ -171,9 +171,7 @@ export default function Movie() {
             <Button onClick={() => setSelectedMovie(null)}>Close</Button>
           </div>
         ) : (
-          <p className="text-center text-muted">
-            Chọn một bộ phim để xem chi tiết
-          </p>
+          <p className="text-center">Chọn một bộ phim để xem chi tiết</p>
         )}
       </Col>
     </Row>
