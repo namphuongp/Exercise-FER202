@@ -10,7 +10,7 @@ export default function AnimalCard({
   additional = {
     notes: "No Additional Information",
     link: "No Additional Information",
-  },
+  },np
   showAdditional,
 }) {
   return (
