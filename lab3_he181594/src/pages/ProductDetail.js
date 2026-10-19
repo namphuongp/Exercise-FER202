@@ -28,11 +28,13 @@ function ProductDetail() {
           />
         </Col>
         <Col className="">
-          <p>Product ID: {id}</p>
           {product && (
             <div>
               <h3>{product.name}</h3>
-              <p>Price: ${product.price.toFixed(2)}</p>
+              <p>ID: {product.id}</p>
+              <p>Danh mục: {product.category}</p>
+              <p>Giá: ${product.price.toFixed(2)}</p>
+              <p>Mô tả: {product.description} </p>
             </div>
           )}
         </Col>
