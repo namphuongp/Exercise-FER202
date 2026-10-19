@@ -3,51 +3,18 @@ import { Link, useSearchParams } from "react-router-dom";
 import { products } from "../data/products";
 import Header from "../components/Header";
 import { Table } from "react-bootstrap";
+
 function ProductList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
   const category = searchParams.get("category") || "";
   const sort = searchParams.get("sort") || "";
 
-  function keywwordChangeHandler(e) {
-    const newKeyword = e.target.value;
-    setSearchParams({ keyword: newKeyword });
-  }
-  function categoryChangeHandler(e) {
-    const newCategory = e.target.value;
-    setSearchParams({ category: newCategory });
-  }
-  function sortChangeHandler(e) {
-    const newSort = e.target.value;
-    setSearchParams({ ...Object.fromEntries(searchParams), sort: newSort });
-  }
-  const filteredProducts = products
-    .filter((product) => {
-      return product.name.toLowerCase().includes(keyword.toLowerCase());
-    })
-    .sort((a, b) => {
-      if (sort === "asc") return a.price - b.price;
-      if (sort === "desc") return b.price - a.price;
-      return 0;
-    });
-  //lấy số phân trang từ url
-  const page = Math.max(Number(searchParams.get("page") || 1), 1);
-  const pageSize = 4;
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-  const currentPage = Math.min(page, totalPages);
-  //lấy sản phẩm cho trang hiện tại
-  const startIndex = (currentPage - 1) * pageSize;
-  const paginatedProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + pageSize,
-  );
-
-  //hàm cập nhật url
+  // Hàm cập nhật URL (giữ nguyên các params khác và reset về trang 1 khi lọc/sắp xếp)
   function updateParams(changes) {
-    //sao chép các tham số của url hiện tại
     const nextParams = new URLSearchParams(searchParams);
     Object.entries(changes).forEach(([key, value]) => {
-      if (value === undefined || value === null) {
+      if (value === undefined || value === null || value === "") {
         nextParams.delete(key);
       } else {
         nextParams.set(key, value);
@@ -55,6 +22,48 @@ function ProductList() {
     });
     setSearchParams(nextParams);
   }
+
+  function keywordChangeHandler(e) {
+    updateParams({ keyword: e.target.value, page: 1 });
+  }
+
+  function categoryChangeHandler(e) {
+    const newCategory = e.target.value;
+    updateParams({ category: newCategory === "all" ? "" : newCategory, page: 1 });
+  }
+
+  function sortChangeHandler(e) {
+    updateParams({ sort: e.target.value, page: 1 });
+  }
+
+  const filteredProducts = products
+    .filter((product) => {
+      const matchesKeyword = product.name.toLowerCase().includes(keyword.toLowerCase());
+      // So sánh không phân biệt hoa thường và dấu cho danh mục
+      const matchesCategory =
+        !category || product.category.toLowerCase() === category.toLowerCase();
+
+      return matchesKeyword && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sort === "asc") return a.price - b.price;
+      if (sort === "desc") return b.price - a.price;
+      return 0;
+    });
+
+  // Lấy số phân trang từ URL
+  const page = Math.max(Number(searchParams.get("page") || 1), 1);
+  const pageSize = 4;
+  const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
+  const currentPage = Math.min(page, totalPages);
+
+  // Lấy sản phẩm cho trang hiện tại
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + pageSize
+  );
+
   function goToPage(newPage) {
     updateParams({ page: newPage });
   }
@@ -63,17 +72,16 @@ function ProductList() {
     <div>
       <Header />
       <div>
-        <div className=" p-3 d-flex justify-content-between">
+        <div className="p-3 d-flex justify-content-between">
           <div>
             <label>Tìm kiếm theo tên: </label>
-
             <input
               type="text"
               placeholder="Search products..."
               className="ms-2"
               style={{ width: "600px" }}
-              value={searchParams.get("keyword") || ""}
-              onChange={keywwordChangeHandler}
+              value={keyword}
+              onChange={keywordChangeHandler}
             />
           </div>
           <div>
@@ -83,10 +91,11 @@ function ProductList() {
               value={category}
               onChange={categoryChangeHandler}
             >
-              <option value="All Category">Tất cả danh mục</option>
-              <option value="điện thoại">Điện thoại</option>
-              <option value="laptop">Laptop</option>
-              <option value="máy tính bảng">Máy tính bảng</option>
+              <option value="all">Tất cả danh mục</option>
+              <option value="Điện thoại">Điện thoại</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Máy tính bảng">Máy tính bảng</option>
+              <option value="Phụ kiện">Phụ kiện</option>
             </select>
           </div>
           <div>
@@ -99,13 +108,13 @@ function ProductList() {
           </div>
         </div>
         <div>
-            <div className="ms-3">
-                Tổng: {filteredProducts.length} | Trang: {currentPage}/{totalPages}
-            </div>
+          <div className="ms-3">
+            Tổng: {filteredProducts.length} | Trang: {currentPage}/{totalPages}
+          </div>
           <div className="d-flex justify-content-end me-3">
             <button
-              disabled={page === 1}
-              onClick={() => updateParams({ page: Math.max(page - 1, 1) })}
+              disabled={currentPage === 1}
+              onClick={() => updateParams({ page: Math.max(currentPage - 1, 1) })}
             >
               Trước
             </button>
@@ -113,20 +122,20 @@ function ProductList() {
               (pageNumber) => (
                 <button
                   key={pageNumber}
-                  disabled={pageNumber === page}
+                  disabled={pageNumber === currentPage}
                   onClick={() => goToPage(pageNumber)}
                   style={{
-                    fontWeight: pageNumber === page ? "bold" : "normal",
+                    fontWeight: pageNumber === currentPage ? "bold" : "normal",
                   }}
                 >
                   {pageNumber}
                 </button>
-              ),
+              )
             )}
             <button
-              disabled={page === totalPages}
+              disabled={currentPage === totalPages}
               onClick={() =>
-                updateParams({ page: Math.min(page + 1, totalPages) })
+                updateParams({ page: Math.min(currentPage + 1, totalPages) })
               }
             >
               Sau
@@ -135,24 +144,34 @@ function ProductList() {
         </div>
         <Table className="ms-3">
           <thead>
-            <th>Id</th>
-            <th>Tên sản phẩm</th>
-            <th>Danh mục</th>
-            <th>Giá</th>
-            <th>Thao tác</th>
+            <tr>
+              <th>Id</th>
+              <th>Tên sản phẩm</th>
+              <th>Danh mục</th>
+              <th>Giá</th>
+              <th>Thao tác</th>
+            </tr>
           </thead>
           <tbody>
-            {paginatedProducts.map((product) => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{product.category}</td>
-                <td>{product.price}</td>
-                <td>
-                  <Link to={`/products/${product.id}`}>View Details</Link>
+            {paginatedProducts.length > 0 ? (
+              paginatedProducts.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.name}</td>
+                  <td>{product.category}</td>
+                  <td>{product.price.toLocaleString()} đ</td>
+                  <td>
+                    <Link to={`/products/${product.id}`}>View Details</Link>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center">
+                  Không tìm thấy sản phẩm phù hợp.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </Table>
       </div>
