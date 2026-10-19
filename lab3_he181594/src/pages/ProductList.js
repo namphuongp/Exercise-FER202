@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { products } from "../data/products";
 import Header from "../components/Header";
 import { Table } from "react-bootstrap";
+import NotFound from "./NotFound";
 
 function ProductList() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,7 +40,6 @@ function ProductList() {
   const filteredProducts = products
     .filter((product) => {
       const matchesKeyword = product.name.toLowerCase().includes(keyword.toLowerCase());
-      // So sánh không phân biệt hoa thường và dấu cho danh mục
       const matchesCategory =
         !category || product.category.toLowerCase() === category.toLowerCase();
 
@@ -167,9 +167,7 @@ function ProductList() {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="text-center">
-                  Không tìm thấy sản phẩm phù hợp.
-                </td>
+                <NotFound></NotFound>
               </tr>
             )}
           </tbody>
