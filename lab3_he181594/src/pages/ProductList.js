@@ -11,7 +11,6 @@ function ProductList() {
   const category = searchParams.get("category") || "";
   const sort = searchParams.get("sort") || "";
 
-  // Hàm cập nhật URL (giữ nguyên các params khác và reset về trang 1 khi lọc/sắp xếp)
   function updateParams(changes) {
     const nextParams = new URLSearchParams(searchParams);
     Object.entries(changes).forEach(([key, value]) => {
